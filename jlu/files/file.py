@@ -103,11 +103,15 @@ class File:
         return None
     
 def _process_media_get(path, file_list, new_filename, **kwargs):
-    """Once a file has been retrived, move it and return File objects."""   
+    """
+    Once a file has been retrived, move it and return File objects.
+    
+    This has been placed here to avoid circular imports (and because is shared in gcu with downloads and uploads).
+    """   
 
     # Create directory if needed
-    if os.path.isdir(os.path.join("/content", path)) == False:
-        os.makedirs(os.path.join("/content", path))
+    if os.path.isdir(path) == False:
+        os.makedirs(path)
 
     # Create a list of new names if needed
     new_names = file_list
@@ -129,14 +133,13 @@ def _process_media_get(path, file_list, new_filename, **kwargs):
     
     # Move uploaded files
     for i, item in enumerate(file_list):
-        original_path = os.path.join('/content', item)
-        new_path = os.path.join("/content", path, new_names[i])
-        os.rename(original_path, new_path)
+        new_path = os.path.join(path, new_names[i])
+        os.rename(item, new_path)
 
     # Create File objects
-    path_to_add = os.path.join("/content", path)
+    path_to_add = path
     if path == "":
-        path_to_add = "/content"
+        path_to_add = os.getcwd()
     if len(file_list) == 1:
         return File(path = os.path.join(path_to_add, new_names[0]), read_content = kwargs.get("read_content", False), read_kwargs = kwargs.get("read_kwargs", {}))
     else:
