@@ -136,10 +136,16 @@ def _process_media_get(path, file_list, new_filename, **kwargs):
         new_path = os.path.join(path, new_names[i])
         os.rename(item, new_path)
 
+        print(f"moving {item} to {new_path}")
+
+
+    print(path)
     # Create File objects
     path_to_add = path
     if path == "":
         path_to_add = os.getcwd()
+
+    print(path_to_add)
     if len(file_list) == 1:
         return File(path = os.path.join(path_to_add, new_names[0]), read_content = kwargs.get("read_content", False), read_kwargs = kwargs.get("read_kwargs", {}))
     else:
