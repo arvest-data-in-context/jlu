@@ -114,7 +114,10 @@ def _process_media_get(path, file_list, new_filename, **kwargs):
         os.makedirs(path)
 
     # Create a list of new names if needed
-    new_names = file_list
+    new_names = []
+    original_folder = os.path.dirname(file_list[0])
+    for item in file_list:
+        new_names.append(os.path.basename(item))
 
     # As uuids
     if new_filename == "_uuid":
@@ -131,25 +134,20 @@ def _process_media_get(path, file_list, new_filename, **kwargs):
             for i, item in enumerate(file_list):
                 new_names.append(new_filename + f" {i}" + os.path.splitext(os.path.basename(item))[1])
     
+    if path == "":
+        path = os.getcwd()
     # Move uploaded files
     for i, item in enumerate(file_list):
         new_path = os.path.join(path, new_names[i])
-        os.rename(item, new_path)
+        os.rename(os.path.join(original_folder, file_list[i]), new_path)
 
         print(f"moving {item} to {new_path}")
 
-
-    print(path)
     # Create File objects
-    path_to_add = path
-    if path == "":
-        path_to_add = os.getcwd()
-
-    print(path_to_add)
     if len(file_list) == 1:
-        return File(path = os.path.join(path_to_add, new_names[0]), read_content = kwargs.get("read_content", False), read_kwargs = kwargs.get("read_kwargs", {}))
+        return File(path = os.path.join(path, new_names[0]), read_content = kwargs.get("read_content", False), read_kwargs = kwargs.get("read_kwargs", {}))
     else:
         ret = []
         for filename in new_names:
-            ret.append(File(path = os.path.join(path_to_add, filename), read_content = kwargs.get("read_content", False), read_kwargs = kwargs.get("read_kwargs", {})))
+            ret.append(File(path = os.path.join(path, filename), read_content = kwargs.get("read_content", False), read_kwargs = kwargs.get("read_kwargs", {})))
         return ret
