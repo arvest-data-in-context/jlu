@@ -1,9 +1,8 @@
 import os
 from typing import Union, List
-from .file import File
+from .file import File, _process_media_get
 import requests
 import zipfile
-from .utils import _process_media_get
 
 def download(url, path = "", **kwargs) -> Union[File, List[File]]:
     """
