@@ -8,8 +8,7 @@ A collection of functions to make JupyterLab notebooks cleaner
 
 required = [
     "requests", 
-    "numpy",
-    "mimetypes"
+    "numpy"
 ]
 
 setup(
