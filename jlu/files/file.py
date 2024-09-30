@@ -5,6 +5,7 @@ from .application_files import *
 from .video_files import *
 from .audio_files import *
 from .image_files import *
+from .utils import get_text_file_properties
 import uuid
 
 class File:
@@ -18,6 +19,7 @@ class File:
         self.dir = kwargs.get("dir", None)
         self.ext = kwargs.get("ext", None)
         self.mime = kwargs.get("mime", None)
+        self.file_properties = None
 
         # If path local given, get filename and directory:
         if self.path != None:
@@ -32,9 +34,28 @@ class File:
 
         self.content = kwargs.get("content", None)
 
+        if self.path != None and kwargs.get("get_file_properties", False):
+            self.get_file_properties()
+
         if kwargs.get("read_content", True):
             if self.filename != None and self.content == None:
                 self.read_content(**kwargs.get("read_kwargs", {})) 
+
+    def get_file_properties(self, **kwargs) -> dict:
+        """Update the file's file_properties property and return as dict."""
+
+        if self.mime[0] == "image":
+            get_image_properties(self)
+        elif self.mime[0] == "audio":
+            get_audio_properties(self)
+        elif self.mime[0] == "video":
+            get_video_properties(self)
+        elif self.mime[0] == "application" or self.mime[0] == "text":
+            get_text_file_properties(self)
+        else:
+            self._cannot_get_properties()
+
+        return self.file_properties
 
     def write(self, **kwargs):
         """Write the contents of the file at its folder under its filename."""
@@ -102,6 +123,12 @@ class File:
         print("This file type is not supported for content writing!")
         return None
     
+    def _cannot_get_properties(self):
+        """Feedback for being unable to get file properties."""
+
+        print("This file type is not supported for retrieving properties!")
+        return None
+    
 def _process_media_get(path, file_list, new_filename, **kwargs):
     """
     Once a file has been retrived, move it and return File objects.
@@ -140,8 +167,6 @@ def _process_media_get(path, file_list, new_filename, **kwargs):
     for i, item in enumerate(file_list):
         new_path = os.path.join(path, new_names[i])
         os.rename(os.path.join(original_folder, file_list[i]), new_path)
-
-        print(f"moving {item} to {new_path}")
 
     # Create File objects
     if len(file_list) == 1:
